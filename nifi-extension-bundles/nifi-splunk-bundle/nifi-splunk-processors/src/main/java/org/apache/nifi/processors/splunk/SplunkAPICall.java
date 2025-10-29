@@ -126,7 +126,7 @@ abstract class SplunkAPICall extends AbstractProcessor {
             .description("Identifier of the used request channel.")
             .required(true)
             .addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
-            .expressionLanguageSupported(ExpressionLanguageScope.ENVIRONMENT)
+            .expressionLanguageSupported(ExpressionLanguageScope.FLOWFILE_ATTRIBUTES)
             .build();
 
     private static final List<PropertyDescriptor> PROPERTY_DESCRIPTORS = List.of(
@@ -161,7 +161,7 @@ abstract class SplunkAPICall extends AbstractProcessor {
     public void onScheduled(final ProcessContext context) {
         splunkServiceArguments = getSplunkServiceArgs(context);
         splunkService = getSplunkService(splunkServiceArguments);
-        requestChannel = context.getProperty(SplunkAPICall.REQUEST_CHANNEL).evaluateAttributeExpressions().getValue();
+        requestChannel = context.getProperty(SplunkAPICall.REQUEST_CHANNEL).evaluateAttributeExpressions(requestFlowFile).getValue();
     }
 
     private ServiceArgs getSplunkServiceArgs(final ProcessContext context) {
