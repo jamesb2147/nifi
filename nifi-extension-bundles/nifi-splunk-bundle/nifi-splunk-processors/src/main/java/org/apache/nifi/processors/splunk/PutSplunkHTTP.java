@@ -163,9 +163,10 @@ public class PutSplunkHTTP extends SplunkAPICall {
         }
 
         try {
+            final String requestChannel = context.getProperty(SplunkAPICall.REQUEST_CHANNEL).evaluateAttributeExpressions(flowFile).getValue();
             final String endpoint = getEndpoint(context, flowFile);
             final RequestMessage requestMessage = createRequestMessage(session, flowFile, context);
-            responseMessage = call(endpoint, requestMessage);
+            responseMessage = call(endpoint, requestMessage, requestChannel);
             flowFile = session.putAttribute(flowFile, "splunk.status.code", String.valueOf(responseMessage.getStatus()));
 
             switch (responseMessage.getStatus()) {
