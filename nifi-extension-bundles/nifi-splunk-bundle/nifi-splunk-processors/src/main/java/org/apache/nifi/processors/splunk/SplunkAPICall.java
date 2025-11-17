@@ -124,7 +124,7 @@ abstract class SplunkAPICall extends AbstractProcessor {
             .description("Identifier of the used request channel.")
             .required(true)
             .addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
-            .expressionLanguageSupported(ExpressionLanguageScope.ENVIRONMENT)
+            .expressionLanguageSupported(ExpressionLanguageScope.FLOWFILE_ATTRIBUTES)
             .build();
 
     private static final List<PropertyDescriptor> PROPERTY_DESCRIPTORS = List.of(
@@ -144,7 +144,6 @@ abstract class SplunkAPICall extends AbstractProcessor {
 
     private volatile ServiceArgs splunkServiceArguments;
     private volatile Service splunkService;
-    private volatile String requestChannel;
 
     protected static List<PropertyDescriptor> getCommonPropertyDescriptors() {
         return PROPERTY_DESCRIPTORS;
@@ -159,7 +158,6 @@ abstract class SplunkAPICall extends AbstractProcessor {
     public void onScheduled(final ProcessContext context) {
         splunkServiceArguments = getSplunkServiceArgs(context);
         splunkService = getSplunkService(splunkServiceArguments);
-        requestChannel = context.getProperty(SplunkAPICall.REQUEST_CHANNEL).evaluateAttributeExpressions().getValue();
     }
 
     private ServiceArgs getSplunkServiceArgs(final ProcessContext context) {
@@ -203,7 +201,6 @@ abstract class SplunkAPICall extends AbstractProcessor {
             splunkService = null;
         }
 
-        requestChannel = null;
         splunkServiceArguments = null;
     }
 
@@ -214,7 +211,7 @@ abstract class SplunkAPICall extends AbstractProcessor {
         config.renameProperty("request-channel", REQUEST_CHANNEL.getName());
     }
 
-    protected ResponseMessage call(final String endpoint, final RequestMessage request)  {
+    protected ResponseMessage call(final String endpoint, final RequestMessage request, final String requestChannel)  {
         request.getHeader().put(REQUEST_CHANNEL_HEADER_NAME, requestChannel);
 
         try {
