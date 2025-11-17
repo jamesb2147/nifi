@@ -164,6 +164,7 @@ public class QuerySplunkIndexingStatus extends SplunkAPICall {
 
         final long currentTime = System.currentTimeMillis();
         final Map<Long, FlowFile> undetermined = new HashMap<>();
+        final String requestChannel = context.getProperty(REQUEST_CHANNEL).evaluateAttributeExpressions().getValue();
 
         for (final FlowFile flowFile : flowFiles)  {
             final Optional<Long> sentAt = extractLong(flowFile.getAttribute(SplunkAPICall.RESPONDED_AT_ATTRIBUTE));
@@ -192,7 +193,7 @@ public class QuerySplunkIndexingStatus extends SplunkAPICall {
         }
 
         try {
-            final ResponseMessage responseMessage = call(ENDPOINT, requestMessage);
+            final ResponseMessage responseMessage = call(ENDPOINT, requestMessage, requestChannel);
 
             if (responseMessage.getStatus() == 200) {
                 final EventIndexStatusResponse splunkResponse = unmarshallResult(responseMessage.getContent(), EventIndexStatusResponse.class);
